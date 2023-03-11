@@ -17,9 +17,9 @@ const aiConfig = new Configuration({
 const openai = new OpenAIApi(aiConfig);
 
 const limiterOptions: Partial<Options> = {
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 30 * 60 * 1000, // 1 hour
   max: 12, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  message: "Too many messages, please try again after an hour",
+  message: "Too many messages, please try again after 30 min",
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 };
