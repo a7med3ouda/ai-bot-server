@@ -23,7 +23,12 @@ const limiterOptions: Partial<Options> = {
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 };
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    optionsSuccessStatus: 200,
+  })
+);
 app.use(express.json());
 
 const serverRunning = async (req: Request, res: Response) => {
