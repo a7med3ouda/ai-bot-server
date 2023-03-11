@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import express, { Request, Response } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { Configuration, OpenAIApi } from "openai";
 import caputchaGuard from "./caputchaGuard";
 import rateLimit, { Options } from "express-rate-limit";
@@ -29,6 +30,9 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
+
+app.use(helmet());
+
 app.use(express.json());
 
 const serverRunning = async (req: Request, res: Response) => {
