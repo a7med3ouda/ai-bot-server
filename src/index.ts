@@ -4,10 +4,10 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { Configuration, OpenAIApi } from "openai";
 import caputchaGuard from "./caputchaGuard";
-const rateLimit = require("express-rate-limiter");
+import rateLimit, { Options } from "express-rate-limit";
 
 const app = express();
-const port = 8090;
+const port = process.env.PORT || 8090;
 
 const aiConfig = new Configuration({
   apiKey: process.env.OPENAI_KEY,
@@ -15,9 +15,10 @@ const aiConfig = new Configuration({
 
 const openai = new OpenAIApi(aiConfig);
 
-const limiterOptions = {
+const limiterOptions: Partial<Options> = {
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 12, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  message: "Too many messages, please try again after an hour",
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 };
