@@ -42,9 +42,11 @@ const serverRunning = async (req: Request, res: Response) => {
 app
   .get("/", serverRunning)
   .get("/api", serverRunning)
+  .post("/api/caputcha", caputchaGuard, async (_, res: Response) => {
+    res.json();
+  })
   .post(
-    "/api",
-    caputchaGuard,
+    "/api/chat",
     rateLimit(limiterOptions),
     async (req: Request, res: Response) => {
       try {
