@@ -3,6 +3,8 @@ dotenv.config();
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { Configuration, OpenAIApi } from "openai";
+import caputchaGuard from "./caputchaGuard";
+const rateLimit = require("express-rate-limiter");
 
 const app = express();
 const port = 8090;
@@ -13,43 +15,61 @@ const aiConfig = new Configuration({
 
 const openai = new OpenAIApi(aiConfig);
 
+const limiterOptions = {
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 12, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+};
+
 app.use(cors());
 app.use(express.json());
 
 const serverRunning = async (req: Request, res: Response) => {
-  res.json("Server is running");
+  return res.json("Server is running");
 };
 
 app
   .get("/", serverRunning)
   .get("/api", serverRunning)
-  .post("/api", async (req: Request, res: Response) => {
-    try {
-      const message = req.body.message as string;
+  .post(
+    "/api",
+    caputchaGuard,
+    rateLimit(limiterOptions),
+    async (req: Request, res: Response) => {
+      try {
+        const message = req.body.message as string;
 
-      const formattedMsg = message
-        .trim()
-        .split(" ")
-        .filter((x) => x)
-        .join(" ");
-      if (!formattedMsg) return res.status(400).json("Invalid Message");
+        const formattedMsg = message
+          .trim()
+          .split(" ")
+          .filter((x) => x)
+          .join(" ");
+        if (!formattedMsg) return res.status(400).json("Invalid Message");
 
-      const aiResponse = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: `${message}`,
-        temperature: 0.7,
-        max_tokens: 4000,
-        top_p: 1,
-        frequency_penalty: 0.5,
-        presence_penalty: 0,
-      });
+        const aiResponse = await openai.createCompletion({
+          model: "text-davinci-003",
+          prompt: `${message}`,
+          temperature: 0.7,
+          max_tokens: 4000,
+          top_p: 1,
+          frequency_penalty: 0.5,
+          presence_penalty: 0,
+        });
 
-      return res.json({
-        message: aiResponse.data.choices[0].text,
-      });
-    } catch (error: any) {
-      return res.status(500).json(error.message);
+        return res.json({
+          message: aiResponse.data.choices[0].text,
+        });
+      } catch (error: any) {
+        return res.status(500).json({
+          subject: "bot",
+          message: error.message,
+        });
+      }
     }
+  )
+  .all("/*", async (_, res) => {
+    return res.status(404).json("Error 404 Route Not Found");
   });
 
 app.listen(port, () => {
