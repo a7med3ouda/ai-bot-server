@@ -3,9 +3,7 @@ import { Request, Response, NextFunction } from "express";
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.headers["X-CAPUTCHA-TOKEN"] as string;
-    console.log(req.headers);
-    console.log(token);
+    const token = req.headers["x-caputcha-token"] as string;
 
     if (!token)
       return res
