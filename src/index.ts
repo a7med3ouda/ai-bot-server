@@ -5,8 +5,8 @@ import cors from "cors";
 import helmet from "helmet";
 import { Configuration, OpenAIApi } from "openai";
 import caputchaGuard from "./caputchaGuard";
-import rateLimit, { Options } from "express-rate-limit";
-import ip from "request-ip";
+// import rateLimit, { Options } from "express-rate-limit";
+// import ip from "request-ip";
 
 const app = express();
 const port = process.env.PORT || 8090;
@@ -28,7 +28,7 @@ app.use(helmet());
 
 app.use(express.json());
 
-app.use(ip.mw());
+// app.use(ip.mw());
 
 const serverRunning = async (req: Request, res: Response) => {
   return res.json("Server is running");
@@ -42,16 +42,16 @@ app
   })
   .post(
     "/api/chat",
-    rateLimit({
-      windowMs: 30 * 60 * 1000, // 1 hour
-      max: 30, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-      message: "Too many messages, please try again after 30 min",
-      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-      keyGenerator: (req, res) => {
-        return req.clientIp; // IP address from requestIp.mw(), as opposed to req.ip
-      },
-    }),
+    // rateLimit({
+    //   windowMs: 30 * 60 * 1000, // 1 hour
+    //   max: 30, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    //   message: "Too many messages, please try again after 30 min",
+    //   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    //   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    //   keyGenerator: (req, res) => {
+    //     return req.clientIp; // IP address from requestIp.mw(), as opposed to req.ip
+    //   },
+    // }),
     async (req: Request, res: Response) => {
       try {
         const message = req.body.message as string;
